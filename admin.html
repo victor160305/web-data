@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>管理員後台</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f5f5f5;
+    }
+
+    .save-button {
+      padding: 10px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+
+    .save-button:hover {
+      background-color: #45a049;
+    }
+
+    .delete-button {
+      padding: 10px 16px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+
+    .delete-button:hover {
+      background-color: #d32f2f;
+    }
+
+    .success-message {
+      color: green;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>管理員後台</h1>
+
+    <table id="attendees-list">
+      <thead>
+        <tr>
+          <th></th>
+          <th>姓名</th>
+          <th>Email</th>
+          <th>選擇時段</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" class="attendee-checkbox"></td>
+          <td class="attendee-name">John Doe</td>
+          <td class="attendee-email">john.doe@example.com</td>
+          <td class="attendee-timeslot">9:00 AM - 10:00 AM</td>
+        </tr>
+        <!-- 其他參與者資料將透過 JavaScript 動態生成 -->
+      </tbody>
+    </table>
+
+    <button class="delete-button" onclick="deleteSelectedData()">刪除選取資料</button>
+
+    <div id="success-message" class="success-message" style="display: none;"></div>
+    <div id="error-message" class="error-message" style="display: none;"></div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // 載入報名者資料
+      loadAttendees();
+    });
+
+    function loadAttendees() {
+      // 從 localStorage 中讀取資料
+      const attendeesData = localStorage.getItem('attendees');
+      const attendees = attendeesData ? JSON.parse(attendeesData) : [];
+
+      var tableBody = $('#attendees-list tbody');
+      tableBody.empty();
+
+      attendees.forEach(function(attendee) {
+        var row = $('<tr>');
+        row.append('<td><input type="checkbox" class="attendee-checkbox"></td>');
+        row.append('<td class="attendee-name">' + attendee.name + '</td>');
+        row.append('<td class="attendee-email">' + attendee.email + '</td>');
+        row.append('<td class="attendee-timeslot">' + attendee.timeslot + '</td>');
+        tableBody.append(row);
+      });
+    }
+
+    function deleteSelectedData() {
+      var selectedAttendees = [];
+      $('.attendee-checkbox:checked').each(function() {
+        var row = $(this).closest('tr');
+        var name = row.find('.attendee-name').text();
+        var email = row.find('.attendee-email').text();
+        var timeslot = row.find('.attendee-timeslot').text();
+        selectedAttendees.push({ name: name, email: email, timeslot: timeslot });
+        row.remove();
+      });
+
+      if (selectedAttendees.length > 0) {
+        removeAttendeesFromStorage(selectedAttendees);
+        showSuccessMessage('選取的資料已刪除');
+      } else {
+        showErrorMessage('請選取要刪除的資料');
+      }
+    }
+
+    function removeAttendeesFromStorage(attendees) {
+      const attendeesData = localStorage.getItem('attendees');
+      const allAttendees = attendeesData ? JSON.parse(attendeesData) : [];
+      
+      const remainingAttendees = allAttendees.filter(function(attendee) {
+        return !attendees.some(function(selected) {
+          return (
+            selected.name === attendee.name &&
+            selected.email === attendee.email &&
+            selected.timeslot === attendee.timeslot
+          );
+        });
+      });
+
+      localStorage.setItem('attendees', JSON.stringify(remainingAttendees));
+    }
+
+    function showSuccessMessage(message) {
+      var successMessage = $('#success-message');
+      successMessage.text(message);
+      successMessage.show();
+      setTimeout(function() {
+        successMessage.hide();
+      }, 3000);
+    }
+
+    function showErrorMessage(message) {
+      var errorMessage = $('#error-message');
+      errorMessage.text(message);
+      errorMessage.show();
+      setTimeout(function() {
+        errorMessage.hide();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

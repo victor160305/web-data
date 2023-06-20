@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>報名網站</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    select {
+      height: 40px;
+    }
+
+    button[type="submit"] {
+      padding: 10px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>報名網站</h1>
+    <form id="registration-form" action="/register" method="post">
+      <label for="name">姓名：</label>
+      <input type="text" id="name" name="name" required><br><br>
+      <label for="email">Email：</label>
+      <input type="email" id="email" name="email" required><br><br>
+      <label for="timeslot">選擇時段：</label>
+      <select id="timeslot" name="timeslot" required>
+        <option value="">請選擇時段</option>
+        <option value="時段1">時段1</option>
+        <option value="時段2">時段2</option>
+        <option value="時段3">時段3</option>
+      </select><br><br>
+      <button type="submit">提交</button>
+    </form>
+  </div>
+
+  <script>
+    const registrationForm = document.getElementById('registration-form');
+
+    registrationForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const timeslot = document.getElementById('timeslot').value;
+
+      // 檢查localStorage中是否已存在相同時段的報名者資料
+      const attendees = JSON.parse(localStorage.getItem('attendees')) || [];
+      const existingAttendee = attendees.find(attendee => attendee.timeslot === timeslot);
+
+      if (existingAttendee) {
+        alert('該時段已被選擇，請選擇其他時段！');
+        return;
+      }
+
+      // 創建報名者的物件
+      const attendee = {
+        name: name,
+        email: email,
+        timeslot: timeslot
+      };
+
+      // 將報名者加入陣列
+      attendees.push(attendee);
+
+      // 將更新後的報名者資料儲存到localStorage
+      localStorage.setItem('attendees', JSON.stringify(attendees));
+
+      // 提示報名成功
+      alert('時段已成功選擇！');
+
+      // 清空表單
+      registrationForm.reset();
+    });
+  </script>
+</body>
+</html>
